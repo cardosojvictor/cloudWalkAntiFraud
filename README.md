@@ -20,7 +20,7 @@ ruby cloud_walk_anti_fraud.rb
 
 ## Usage
 
-- In the folder lib run the following:
+- In the lib folder run the following:
 ruby cloud_walk_anti_fraud.rb
 
 endpoint to validate a transaction [approve/deny] - POST /process_payment: http://localhost:4567/process_payment 

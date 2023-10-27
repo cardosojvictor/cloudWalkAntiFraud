@@ -11,20 +11,20 @@ class PaymentProcessorService
     # @param payment_transactions [Array<PaymentTransaction>] an array of PaymentTransaction objects loaded into memory.
     def initialize(payment_transactions)
         @payment_transactions = payment_transactions
-        puts "Loaded #{@payment_transactions.size} payment transactions to memory"
     end
   
     # Determines whether a payment should be approved or not based on the given payload.
     #
     # @param payload [Hash] a hash containing the payment information.
+    #
     # @return [Boolean] true if the payment should be approved, false otherwise.
     def approve_payment?(payload)
-        previous_transactions = retrieve_three_previous_transactions(payload)
+        previous_transactions = retrieve_three_previous_transactions(payload, "user_id")
       
         return false if reject_transaction_chargeback(previous_transactions, payload)
         return false if reject_transaction_threshold_limit(previous_transactions, payload)
       
-        historic_check = check_last_three_transactions_in_a_row(previous_transactions, payload, "user_id")
+        historic_check = check_last_three_transactions_in_a_row(previous_transactions, payload)
         user_data_check = check_card_number_different_device_and_user(@payment_transactions, payload)
       
         return false if historic_check || user_data_check
@@ -38,6 +38,7 @@ class PaymentProcessorService
     #
     # @param previous_transactions [Array<PaymentTransaction>] an array of PaymentTransaction objects representing the previous transactions
     # @param payload [Hash] a hash containing the payment information.
+    #
     # @return [Boolean] true if the payment transaction has a chargeback identified, false otherwise.
     def reject_transaction_chargeback(previous_transactions, payload)
         if !previous_transactions.empty?
@@ -50,10 +51,11 @@ class PaymentProcessorService
         end
     end 
 
-    # Checks if the given payment transaction has a different device ID and user ID than the previous transaction.
+    # Checks if the given payment transaction has a different device ID and user ID than the previous transaction, considering the card number
     #
     # @param payment_transactions [Array<PaymentTransaction>] an array of PaymentTransaction objects to search for previous transactions.
     # @param payload [Hash] a hash containing the payment information.
+    #
     # @return [Boolean] true if the payment transaction has a different device ID and user ID than 
     # the previous transaction, false otherwise - this validation may indicate a legal transaction.
     def check_card_number_different_device_and_user(payment_transactions, payload)
@@ -73,6 +75,7 @@ class PaymentProcessorService
     #
     # @param previous_transactions [Array<PaymentTransaction>] an array of PaymentTransaction objects representing the previous transactions
     # @param payload [Hash] a hash containing the payment information.
+    #
     # @return [Boolean] true if the payment transaction exceeds the daily transactions threshold limit, false otherwise.
     def reject_transaction_threshold_limit(previous_transactions, payload)
       if !previous_transactions.empty?
@@ -103,6 +106,7 @@ class PaymentProcessorService
     #
     # @param payload [Json] containing the payment information.
     # @param search_key [String] the key to search for in the payment_transactions array.
+    #
     # @return [Array<PaymentTransaction>] an array of PaymentTransaction objects containing previous transactions.
     def retrieve_three_previous_transactions(payload, search_key = "user_id")
         @payment_transactions.select { |t| t[search_key] == payload[search_key] }.first(3)
@@ -113,9 +117,9 @@ class PaymentProcessorService
     #
     # @param previous_transactions [Array<PaymentTransaction>] an array of PaymentTransaction objects containing previous transactions.
     # @param payload [Json] containing the payment information.
-    # @param search_key [String] the key to search for in the payment_transactions array.
+    # 
     # @return [Boolean] true if the last three transactions made by the user were made within a 90sec interval, false otherwise.
-    def check_last_three_transactions_in_a_row(previous_transactions, payload, search_key)
+    def check_last_three_transactions_in_a_row(previous_transactions, payload)
         if previous_transactions.empty? or previous_transactions.length < 2
             return false
         end
