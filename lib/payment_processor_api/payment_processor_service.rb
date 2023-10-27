@@ -6,11 +6,11 @@ class PaymentProcessorService
     DAILY_TRANSACTIONS_THRESHOLD_LIMIT = 7500.0
 
     # Initializes a new instance of PaymentProcessorService with the given payment_transactions.
+    # Loaded all payment transactions to memory, so subsequent requests will be faster at post /process_payment
     #
     # @param payment_transactions [Array<PaymentTransaction>] an array of PaymentTransaction objects loaded into memory.
     def initialize(payment_transactions)
         @payment_transactions = payment_transactions
-        # Loaded all payment transactions to memory, so subsequent requests will be faster at post /process_payment
         puts "Loaded #{@payment_transactions.size} payment transactions to memory"
     end
   
@@ -93,6 +93,9 @@ class PaymentProcessorService
             else
                 return false
             end
+        elsif payload["transaction_amount"] > DAILY_TRANSACTIONS_THRESHOLD_LIMIT
+            puts "Transaction denied due to daily transactions threshold limit"
+            return true
         end
     end
 
@@ -113,9 +116,6 @@ class PaymentProcessorService
     # @param search_key [String] the key to search for in the payment_transactions array.
     # @return [Boolean] true if the last three transactions made by the user were made within a 90sec interval, false otherwise.
     def check_last_three_transactions_in_a_row(previous_transactions, payload, search_key)
-        puts "previous_transactions: \n #{previous_transactions}"
-        puts "search_key: #{search_key}" 
-
         if previous_transactions.empty? or previous_transactions.length < 2
             return false
         end

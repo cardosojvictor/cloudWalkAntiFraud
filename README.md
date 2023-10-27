@@ -1,39 +1,39 @@
 # CloudWalkAntiFraud
 
-TODO: Delete this and the text below, and describe your gem
+Welcome to the CloudWalkAntiFraud Anti Fraud System! Directory structure:
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/cloudWalkAntiFraud`. To experiment with that code, run `bin/console` for an interactive prompt.
+- root directory of the project: cloudWalkAntiFraud
+- answers for the section '3. Tasks' from the challenge: answers/answers_payment_industry.md
+- config: ruby config files and database.yml
+- helpers: some scripts built in the beginning of the project to understand the data and patterns, and to insert them into the DB
+- lib: the project classes files - where the solution is implemented
+- lib/data: classes to connect to the database (Amazon RDS) and to provide functions to retrieve data
+- lib/payment_processor_api: api to process the incoming payments and approve or not, based on rules
+
+cloud_walk_anti_fraud.rb -> main file, run this one to get the system up and running
+
+ruby cloud_walk_anti_fraud.rb
 
 ## Installation
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
-
-Install the gem and add to the application's Gemfile by executing:
-
-    $ bundle add UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG
-
-If bundler is not being used to manage dependencies, install the gem by executing:
-
-    $ gem install UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG
+- Clone the project and install the needed dependencies (gems) - bundle install
 
 ## Usage
 
-TODO: Write usage instructions here
+- In the folder lib run the following:
+ruby cloud_walk_anti_fraud.rb
 
-## Development
+endpoint to validate a transaction [approve/deny] - POST /process_payment: http://localhost:4567/process_payment 
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+- test_payment_processor_api.rb can also be run to validate scenarios
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+## Development structure and architecture
 
-## Contributing
+It was created a database at Amazon RDS, in order to load all the payment transactions to a new table:
+- payment_transactions
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/cloudWalkAntiFraud. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/cloudWalkAntiFraud/blob/master/CODE_OF_CONDUCT.md).
+development:
+  adapter: postgresql
+  url: postgresql://postgres:BYkKUDwbpH5AsADarTzV@cw-payment-transactions.chmvvzhykcoy.us-east-2.rds.amazonaws.com:5432
 
-## License
-
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-
-## Code of Conduct
-
-Everyone interacting in the CloudWalkAntiFraud project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/cloudWalkAntiFraud/blob/master/CODE_OF_CONDUCT.md).
+  ![Alt text](architecture.png)

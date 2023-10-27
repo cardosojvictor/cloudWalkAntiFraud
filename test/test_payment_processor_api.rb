@@ -22,7 +22,7 @@ class PaymentProcessorApiTest < Minitest::Test
   end
 
   def test_post_process_payment_returns_json
-    post '/process_payment', { transaction_id: '123', amount: 100 }.to_json, 'CONTENT_TYPE' => 'application/json'
+    post '/process_payment', { transaction_id: '123', transaction_amount: 100 }.to_json, 'CONTENT_TYPE' => 'application/json'
     assert last_response.ok?
     assert_equal 'application/json', last_response.content_type
   end
@@ -35,20 +35,39 @@ class PaymentProcessorApiTest < Minitest::Test
   end
 
   def test_post_process_payment_returns_error_for_missing_payload
-    post '/process_payment', { amount: 100 }.to_json, 'CONTENT_TYPE' => 'application/json'
+    post '/process_payment', { transaction_amount: 100 }.to_json, 'CONTENT_TYPE' => 'application/json'
     assert_equal 400, last_response.status
     assert_equal 'application/json', last_response.content_type
     assert_equal({ 'error' => 'missingPayload - no transaction_id found' }, JSON.parse(last_response.body))
   end
 
   def test_post_process_payment_returns_recommendation
-    post '/process_payment', { transaction_id: '123', amount: 100 }.to_json, 'CONTENT_TYPE' => 'application/json'
+    post '/process_payment', { transaction_id: '123', transaction_amount: 100 }.to_json, 'CONTENT_TYPE' => 'application/json'
     response = JSON.parse(last_response.body)
     assert_equal '123', response['transaction_id']
     assert ['approve', 'deny'].include?(response['recommendation'])
   end
 
   def test_post_payment_processor_service_exceeds_amount
+    payload = {
+      "transaction_id": 12663,
+      "merchant_id": 74713,
+      "user_id": 88888,
+      "card_number": "552289******8929",
+      "transaction_date": "2019-11-21T01:06:02.862952",
+      "transaction_amount": 7800.96,
+      "device_id": 10906
+    }
+    
+    @payment_processor_service.stub(:approve_payment?, true) do
+      post '/process_payment', payload.to_json, 'CONTENT_TYPE' => 'application/json'
+      assert last_response.ok?
+      assert_equal 'application/json', last_response.content_type
+      assert_equal({ 'transaction_id' => 12663, 'recommendation' => 'deny' }, JSON.parse(last_response.body))
+    end
+  end
+
+  def test_post_payment_processor_service_has_chk_and_exceeds_amount
     payload = {
       "transaction_id": 21323537,
       "merchant_id": 8942,
@@ -94,7 +113,7 @@ class PaymentProcessorApiTest < Minitest::Test
       "user_id": 88490,
       "card_number": "552289******2674",
       "transaction_date": "2019-11-11T19:09:50.419051",
-      "transaction_amount": 350.84,
+      "transaction_amount": 350.84
     }
    
     @payment_processor_service.stub(:approve_payment?, true) do
@@ -124,7 +143,7 @@ class PaymentProcessorApiTest < Minitest::Test
     end
   end
 
-  def test_post_payment_processor_deny_transaction
+  def test_post_payment_processor_deny_multiple_transactions_in_a_row
     payload = {
       "transaction_id": 78798798,
       "merchant_id": 80155,

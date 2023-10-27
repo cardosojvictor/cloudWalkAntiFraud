@@ -1,6 +1,5 @@
 # api/api.rb
 require 'sinatra/base'
-require 'json'
 require_relative  '../data/data_retrieve_service'
 require_relative '../data/payment_transaction_model'
 require_relative '../data/database_connector'
@@ -12,7 +11,7 @@ module CloudWalkAntiFraud
     data_retrieve_service = DataRetrieveService.instance
     payment_transactions = data_retrieve_service.load_payment_transactions
     payment_processor_service = PaymentProcessorService.new(payment_transactions)
-    
+
     get '/payments/:device_id' do
       device_id = params[:device_id]
       payments = data_retrieve_service.retrieve_payments_by_device(device_id)
