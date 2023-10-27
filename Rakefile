@@ -12,3 +12,4 @@ end
 require "standard/rake"
 
 task default: %i[test standard]
+

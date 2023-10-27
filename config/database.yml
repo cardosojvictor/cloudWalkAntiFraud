@@ -1,0 +1,7 @@
+development:
+  adapter: postgresql
+  url: postgresql://postgres:BYkKUDwbpH5AsADarTzV@cw-payment-transactions.chmvvzhykcoy.us-east-2.rds.amazonaws.com:5432
+
+test:
+  adapter: postgresql
+  url: postgresql://postgres:BYkKUDwbpH5AsADarTzV@cw-payment-transactions.chmvvzhykcoy.us-east-2.rds.amazonaws.com:5432
