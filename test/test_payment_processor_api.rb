@@ -131,7 +131,7 @@ class PaymentProcessorApiTest < Minitest::Test
       "user_id": 75710,
       "card_number": "554482******7640",
       "transaction_date": "2019-11-08T23:15:00.465991",
-      "transaction_amount": 4000.37,
+      "transaction_amount": 4000.37
     }
     
     
